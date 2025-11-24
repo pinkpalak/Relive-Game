@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 1: Character Visualization - Interactive Narrative Game</title>
+    <link rel="stylesheet" href="phase1.css">
+    <!-- Google Fonts - Public Sans (closest to Publica Sans Round) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Main game container -->
+    <div class="phase1-container">
+        <!-- Header with title -->
+        <header class="phase-header">
+            <h1 class="phase-title">How do you picture transgender people as?</h1>
+        </header>
+
+        <!-- Whiteboard container with drawable canvas -->
+        <div class="whiteboard-wrapper" style="display:flex;flex-direction:column;align-items:center;">
+            <div style="margin-bottom:18px;">
+                <div style="position:relative;display:inline-block;">
+                    <button id="penBtn" class="action-btn" style="background:#222;color:#fff;">Pen</button>
+                    <div id="colorPicker" style="display:none;position:absolute;top:44px;left:50%;transform:translateX(-50%);z-index:20;background:#fff;padding:10px 18px;border-radius:18px;box-shadow:0 2px 12px rgba(0,0,0,0.10);gap:12px;flex-wrap:wrap;align-items:center;">
+                    <span class="color-circle" data-color="#222" style="background:#222;"></span>
+                    <span class="color-circle" data-color="#E0543D" style="background:#E0543D;"></span>
+                    <span class="color-circle" data-color="#FFD600" style="background:#FFD600;"></span>
+                    <span class="color-circle" data-color="#2196F3" style="background:#2196F3;"></span>
+                    <span class="color-circle" data-color="#43A047" style="background:#43A047;"></span>
+                    <span class="color-circle" data-color="#fff" style="background:#fff;border:1.5px solid #bbb;"></span>
+                </div>
+                            <style>
+                            .color-circle {
+                                display:inline-block;
+                                width:28px;
+                                height:28px;
+                                border-radius:50%;
+                                margin:0 6px;
+                                cursor:pointer;
+                                border:2px solid #eee;
+                                box-shadow:0 1px 4px rgba(0,0,0,0.08);
+                                transition: border 0.18s;
+                            }
+                            .color-circle.selected {
+                                border:2.5px solid #E0543D;
+                            }
+                            </style>
+                </div>
+                <button id="eraserBtn" class="action-btn" style="background:#eee;color:#222;">Eraser</button>
+                <button id="clearBtn" class="action-btn clear-btn" style="background:#E0543D;color:#fff;">Erase All</button>
+            </div>
+            <canvas id="whiteboardCanvas" width="900" height="600" style="background:#fff;border-radius:18px;box-shadow:0 4px 18px rgba(0,0,0,0.12);"></canvas>
+            <p style="margin-top:12px;color:#666;font-size:1rem;">Draw your character or experience using the pen and eraser tools.</p>
+            <div style="width:900px;margin-top:24px;background:#f8f8f8;padding:24px 32px;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">
+                    <div style="flex:1;min-width:220px;">
+                        <label for="characterName" style="font-weight:600;color:#222;">Character Name</label><br>
+                        <input type="text" id="characterName" placeholder="Enter character name" style="width:100%;padding:8px 12px;margin-top:6px;border-radius:8px;border:1px solid #ccc;font-size:1rem;">
+                    </div>
+                    <div style="flex:2;min-width:320px;">
+                        <label for="characterDescription" style="font-weight:600;color:#222;">Description</label><br>
+                        <div style="position:relative;">
+                            <textarea id="characterDescription" rows="3" placeholder="Describe your character's experience, feelings, or story..." style="width:100%;padding:8px 12px 48px 12px;margin-top:6px;border-radius:8px;border:1px solid #ccc;font-size:1rem;"></textarea>
+                            <div style="position:absolute;bottom:8px;left:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                                <span style="font-weight:600;color:#E0543D;margin-right:8px;">Suggestions:</span>
+                                <span class="suggestion-tag">Place</span>
+                                <span class="suggestion-tag">Action</span>
+                                <span class="suggestion-tag">Feeling</span>
+                                <span class="suggestion-tag">Challenge</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+            .suggestion-tag {
+                background: #eee;
+                border-radius: 18px;
+                padding: 4px 14px;
+                font-size: 0.98rem;
+                color: #444;
+                font-family: inherit;
+                border: 1.5px dashed #bbb;
+                box-shadow: none;
+                user-select: none;
+                pointer-events: none;
+                margin-right: 2px;
+            }
+            </style>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="action-buttons">
+            <button id="continueBtn" class="action-btn continue-btn">Continue</button>
+        </div>
+    </div>
+
+    <script>
+    // Simple drawing whiteboard logic
+    const canvas = document.getElementById('whiteboardCanvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    let tool = 'pen';
+    let penColor = '#222';
+    let lastX = 0, lastY = 0;
+
+    function setTool(newTool) {
+        tool = newTool;
+        document.getElementById('penBtn').style.background = tool === 'pen' ? '#222' : '#eee';
+        document.getElementById('penBtn').style.color = tool === 'pen' ? '#fff' : '#222';
+        document.getElementById('eraserBtn').style.background = tool === 'eraser' ? '#222' : '#eee';
+        document.getElementById('eraserBtn').style.color = tool === 'eraser' ? '#fff' : '#222';
+        if (tool === 'pen') {
+            document.getElementById('colorPicker').style.display = 'flex';
+        } else {
+            document.getElementById('colorPicker').style.display = 'none';
+        }
+    }
+
+    document.getElementById('penBtn').onclick = (e) => {
+        setTool('pen');
+        e.stopPropagation();
+    };
+    document.getElementById('eraserBtn').onclick = () => {
+        setTool('eraser');
+    };
+    document.getElementById('clearBtn').onclick = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    // Color picker logic
+    document.querySelectorAll('.color-circle').forEach(circle => {
+        circle.onclick = function(e) {
+            penColor = this.getAttribute('data-color');
+            document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('colorPicker').style.display = 'none';
+            e.stopPropagation();
+        };
+    });
+
+    // Hide color picker when clicking outside
+    document.body.addEventListener('click', function(e) {
+        if (tool === 'pen') {
+            document.getElementById('colorPicker').style.display = 'none';
+        }
+    });
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+            x: (e.touches ? e.touches[0].clientX : e.clientX) - rect.left,
+            y: (e.touches ? e.touches[0].clientY : e.clientY) - rect.top
+        };
+    }
+
+    function startDraw(e) {
+        drawing = true;
+        const pos = getPos(e);
+        lastX = pos.x;
+        lastY = pos.y;
+    }
+    function draw(e) {
+        if (!drawing) return;
+        const pos = getPos(e);
+        ctx.lineWidth = tool === 'pen' ? 3 : 18;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = tool === 'pen' ? penColor : '#fff';
+        ctx.globalCompositeOperation = tool === 'pen' ? 'source-over' : 'destination-out';
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        lastX = pos.x;
+        lastY = pos.y;
+    }
+    function stopDraw() {
+        drawing = false;
+        ctx.globalCompositeOperation = 'source-over';
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('touchstart', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('mouseup', stopDraw);
+    canvas.addEventListener('mouseleave', stopDraw);
+    canvas.addEventListener('touchend', stopDraw);
+
+    // Continue button logic
+    document.getElementById('continueBtn').onclick = function() {
+        window.location.href = 'new-phase-2.html';
+    };
+    </script>
+</body>
+</html>
+

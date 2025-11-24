@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thank you — Relive</title>
+    <style>
+        :root{--bg:#0A0A0A;--panel:#0b0b0b;--field:#121212;--accent:#E0543D;--muted:#9a9a9a}
+        html,body{height:100%;min-height:100%;margin:0;color:#fff;font-family:Segoe UI, system-ui, Arial, sans-serif}
+        /* background: Relive Home SVG with a subtle dark overlay */
+        html,body{
+            background: linear-gradient(rgba(6,6,6,0.64), rgba(6,6,6,0.64)), url("Reference Documents/Relive Home.svg") center bottom / cover no-repeat fixed;
+            background-color: var(--bg);
+        }
+
+        /* layout: align content bottom-center */
+        body{display:flex;align-items:flex-end;justify-content:center;padding-bottom:48px}
+
+        .wrap{width:1120px;max-width:95%;margin:0 auto 24px;display:flex;flex-direction:column;gap:24px;align-items:center}
+        header{margin-top:0;text-align:center}
+        h1{font-size:28px;margin:0 0 6px;font-weight:700}
+        p.lead{margin:0;color:var(--muted);font-size:15px;text-align:center}
+
+        .field-wrap{position:relative;margin-top:18px;width:100%;display:flex;justify-content:center}
+        textarea.note{
+            width:100%;max-width:880px;min-height:160px;background:#FDFAF0;border-radius:12px;border:1px solid rgba(0,0,0,0.08);color:#111;padding:18px 86px 18px 64px;resize:vertical;font-size:15px;line-height:1.45;box-sizing:border-box;
+            /* left margin (vertical line) and subtle ruled lines */
+            background-image:
+                linear-gradient(90deg, transparent 48px, rgba(224,84,61,0.12) 48px, rgba(224,84,61,0.12) 50px, transparent 50px),
+                repeating-linear-gradient(transparent, transparent 26px, rgba(0,0,0,0.06) 26px);
+            background-size: 100% 100%, 100% 26px;
+            background-position: left top, left top;
+            background-repeat: no-repeat, repeat;
+        }
+        textarea.note::placeholder{color:#6b6b6b}
+
+        /* submit button inside bottom-right of textarea */
+        .submit-inline{position:absolute;right:12px;bottom:12px;display:flex;align-items:center;gap:10px}
+        .btn{
+            display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer
+        }
+        .btn:disabled{opacity:0.6;cursor:not-allowed}
+
+        .meta{display:flex;align-items:center;justify-content:space-between;margin-top:8px;color:var(--muted);font-size:13px}
+
+        .confirmation{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;margin-top:18px;border:1px solid rgba(255,255,255,0.03);display:flex;gap:16px;align-items:center}
+        .confirmation p{margin:0;color:#ddd}
+
+        .footer-cta{margin-top:8px}
+
+        /* simple popup */
+        .popup{position:fixed;left:50%;top:16%;transform:translateX(-50%);background:var(--panel);padding:18px 22px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.6);display:none;z-index:999}
+
+        /* archive link style */
+        a.archive-link{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px;color:#fff;text-decoration:none}
+
+        @media(max-width:720px){.wrap{padding:20px}}
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <h1>Thank you for reliving this life!</h1>
+            <p class="lead">Before you go, it would be great to hear how reliving this story made you feel or learn.</p>
+        </header>
+
+        <section aria-labelledby="leave-note">
+            <div class="field-wrap">
+                <textarea id="noteField" class="note" placeholder="Leave a note here!" maxlength="2000" aria-label="Leave a note"></textarea>
+
+                <div class="submit-inline">
+                    <div id="wordCount" style="color:var(--muted);font-size:13px">0 / 100 words</div>
+                    <button id="submitBtn" class="btn" title="Submit note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8.5L12 13L21 8.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 8.5V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <span>Submit</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="meta">
+                <div style="color:var(--muted)">Tip: You can write up to 100 words.</div>
+                <div><a class="archive-link" href="archive.html">See archive</a></div>
+            </div>
+        </section>
+
+        <div id="afterSubmitContainer"></div>
+
+        <div id="notePopup" class="popup" role="status" aria-live="polite">Note sent ✓</div>
+    </div>
+
+    <script>
+        // Explanation about repository options (short):
+        // To collect notes centrally you need a server-side endpoint (e.g. POST /api/notes)
+        // Options:
+        // 1) Simple server: implement a small POST endpoint that appends notes to a database (SQLite, Postgres) or a JSON file. This requires a server (Node, Python, PHP).
+        // 2) Serverless: use Firebase/Firestore or Google Sheets (via Apps Script) to receive POSTs from the page. Easiest for no-server setups is Firebase.
+        // 3) Use a third-party form backend (Formspree, Netlify forms) to collect submissions to a inbox or CSV.
+        // In this UI we implement a client-side POST to '/api/notes' (if you host a backend) and a localStorage fallback so notes are not lost.
+
+        const textarea = document.getElementById('noteField');
+        const submitBtn = document.getElementById('submitBtn');
+        const wordCount = document.getElementById('wordCount');
+        const popup = document.getElementById('notePopup');
+        const after = document.getElementById('afterSubmitContainer');
+
+        function countWords(text){
+            if (!text) return 0;
+            return text.trim().split(/\s+/).filter(Boolean).length;
+        }
+
+        function updateCount(){
+            const words = countWords(textarea.value);
+            wordCount.textContent = words + ' / 100 words';
+            submitBtn.disabled = (words > 100);
+        }
+
+        textarea.addEventListener('input', updateCount);
+        updateCount();
+
+        function saveToLocalArchive(note){
+            try{
+                const key = 'relive_notes_archive';
+                const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                existing.push(note);
+                localStorage.setItem(key, JSON.stringify(existing));
+            }catch(e){ console.warn('local save failed', e) }
+        }
+
+        async function submitNote(){
+            const text = textarea.value.trim();
+            const words = countWords(text);
+            if (words > 100){ alert('Please keep your note under 100 words.'); return; }
+
+            const payload = {
+                note: text,
+                wordCount: words,
+                timestamp: new Date().toISOString()
+            };
+
+            // optimistic local save fallback
+            saveToLocalArchive(payload);
+
+            // attempt to POST to server endpoint (you can implement /api/notes to receive JSON)
+            let ok = false;
+            try{
+                const res = await fetch('/api/notes', {
+                    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+                });
+                ok = res && res.ok;
+            }catch(e){ ok = false; }
+
+            // show confirmation popup
+            popup.style.display = 'block';
+            setTimeout(()=> popup.style.display = 'none', 2200);
+
+            // show the after-submit content as specified
+            after.innerHTML = `
+                <div class="confirmation">
+                    <p>You have walked one path, but the spectrum of experience is vast and varied. Every journey adds a new color to our collective story.</p>
+                    <div class="footer-cta"><a class="btn" href="archive.html">See Archive</a></div>
+                </div>
+            `;
+
+            // clear textarea (keep local saved copy)
+            textarea.value = '';
+            updateCount();
+        }
+
+        submitBtn.addEventListener('click', submitNote);
+
+        // also allow Ctrl+Enter to submit
+        textarea.addEventListener('keydown', (e)=>{
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+                submitNote();
+            }
+        });
+    </script>
+</body>
+</html>
