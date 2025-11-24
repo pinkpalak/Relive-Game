@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Relive - Intro</title>
+  <style>
+    html,body{height:100%;margin:0}
+    body{
+      display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden
+    }
+    /* full-bleed container uses background images; keep the image fully visible */
+    #intro-container{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center; /* center image vertically */
+      justify-content:center;
+      padding-bottom:96px; /* increased bottom padding so content has breathing room */
+      background-color:#000;
+      /* first layer: overlay (auto), second: SVG image --> contain to avoid cropping */
+      background-size: auto, contain;
+      background-position: center center, center center;
+      background-repeat: no-repeat, no-repeat;
+      transition:background-image .36s ease-in-out, background-color .2s;
+      height:100vh;
+    }
+    /* Next button positioned bottom-right (moved up slightly) */
+    #intro-next{appearance:none;border:0;background:#E0543D;color:#fff;padding:14px 36px;border-radius:999px;font-weight:700;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,0.45);font-size:16px;position:absolute;right:60px;bottom:120px;z-index:40}
+  </style>
+</head>
+<body>
+  <div id="intro-container">
+    <button id="intro-next">Next</button>
+  </div>
+
+  <script>
+    // Sequence of intro SVGs to show as background (relative to project root)
+    const slides = [
+      'Reference Documents/Intro 1.svg',
+      'Reference Documents/Intro 2.svg',
+      'Reference Documents/Intro 3.svg',
+      'Reference Documents/Intro 4.svg',
+      'Reference Documents/Intro 5.svg',
+      'Reference Documents/Intro 6.svg'
+    ];
+
+    const container = document.getElementById('intro-container');
+    const nextBtn = document.getElementById('intro-next');
+    let idx = 0;
+
+    function setBg(i){
+      const file = slides[i];
+      // encode URI component to handle spaces
+      const url = encodeURI(file);
+      container.style.backgroundImage = `linear-gradient(rgba(6,6,6,0.22), rgba(6,6,6,0.22)), url("${url}")`;
+    }
+
+    // preload images
+    slides.forEach(s=>{ const img=new Image(); img.src = s; });
+
+    setBg(idx);
+
+    nextBtn.addEventListener('click', ()=>{
+      idx++;
+      if (idx < slides.length){
+        setBg(idx);
+      } else {
+        // finished sequence — go to archive
+        window.location.href = 'archive.html';
+      }
+    });
+  </script>
+</body>
+</html>

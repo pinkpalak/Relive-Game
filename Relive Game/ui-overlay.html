@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Overlay - Emotional Metrics & Controls</title>
+    <link rel="stylesheet" href="ui-overlay.css">
+    <!-- Google Fonts - Public Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- UI Overlay Container -->
+    <div class="ui-overlay">
+        <!-- Top Left: Emotional Metrics Panel -->
+        <div class="metrics-panel">
+            <!-- Dignity Meter -->
+            <div class="metric-bar">
+                <div class="metric-label">
+                    <span class="metric-icon">👑</span>
+                    <span class="metric-name">Dignity</span>
+                </div>
+                <div class="metric-container">
+                    <div class="metric-fill" id="dignityMeter" style="width: 100%;"></div>
+                </div>
+                <span class="metric-value" id="dignityValue">100%</span>
+            </div>
+
+            <!-- Survival Meter -->
+            <div class="metric-bar">
+                <div class="metric-label">
+                    <span class="metric-icon">🛡️</span>
+                    <span class="metric-name">Survival</span>
+                </div>
+                <div class="metric-container">
+                    <div class="metric-fill" id="survivalMeter" style="width: 100%;"></div>
+                </div>
+                <span class="metric-value" id="survivalValue">100%</span>
+            </div>
+
+            <!-- Authenticity Meter -->
+            <div class="metric-bar">
+                <div class="metric-label">
+                    <span class="metric-icon">✨</span>
+                    <span class="metric-name">Authenticity</span>
+                </div>
+                <div class="metric-container">
+                    <div class="metric-fill" id="authenticityMeter" style="width: 100%;"></div>
+                </div>
+                <span class="metric-value" id="authenticityValue">100%</span>
+            </div>
+        </div>
+
+        <!-- Top Right: Progress Indicator -->
+        <div class="progress-panel">
+            <div class="progress-label">Progress</div>
+            <div class="progress-value" id="progressValue">0 / 0</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressBar" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Bottom Center: Move Forward Button -->
+        <div class="action-panel">
+            <button id="moveForwardBtn" class="move-forward-btn">
+                <span class="btn-icon">→</span>
+                <span class="btn-text">Move Forward</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="ui-overlay.js"></script>
+</body>
+</html>
+

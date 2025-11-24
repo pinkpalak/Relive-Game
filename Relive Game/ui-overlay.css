@@ -1,0 +1,393 @@
+/* ============================================
+   GLOBAL STYLES & RESET
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* ============================================
+   UI OVERLAY CONTAINER
+   ============================================ */
+.ui-overlay {
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+}
+
+.ui-overlay > * {
+    pointer-events: all;
+}
+
+/* ============================================
+   METRICS PANEL (Top Left)
+   ============================================ */
+.metrics-panel {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    min-width: 280px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.metric-bar {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.metric-bar:last-child {
+    margin-bottom: 0;
+}
+
+.metric-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.95em;
+    color: #2c3e50;
+    min-width: 110px;
+}
+
+.metric-icon {
+    font-size: 1.3em;
+    width: 24px;
+    text-align: center;
+}
+
+.metric-name {
+    font-weight: 600;
+}
+
+.metric-container {
+    flex: 1;
+    height: 22px;
+    background: #e8e8e8;
+    border-radius: 11px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.metric-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8AB9B5 0%, #6a9a96 100%);
+    border-radius: 11px;
+    transition: width 1s ease, background 0.5s ease;
+    box-shadow: 0 2px 4px rgba(138, 185, 181, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.3) 50%, 
+        transparent 100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Metric color states */
+.metric-fill.low {
+    background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.metric-fill.medium {
+    background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
+}
+
+.metric-fill.high {
+    background: linear-gradient(90deg, #8AB9B5 0%, #6a9a96 100%);
+}
+
+.metric-value {
+    font-weight: 700;
+    font-size: 0.9em;
+    color: #2c3e50;
+    min-width: 50px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   PROGRESS PANEL (Top Right)
+   ============================================ */
+.progress-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    min-width: 200px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.progress-label {
+    font-weight: 600;
+    font-size: 0.95em;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.progress-value {
+    font-weight: 700;
+    font-size: 1.4em;
+    color: #8AB9B5;
+    margin-bottom: 12px;
+    font-variant-numeric: tabular-nums;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 10px;
+    background: #e8e8e8;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8AB9B5 0%, #6a9a96 100%);
+    transition: width 0.6s ease;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(138, 185, 181, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.4) 50%, 
+        transparent 100%);
+    animation: shimmer 2s infinite;
+}
+
+/* ============================================
+   ACTION PANEL (Bottom Center)
+   ============================================ */
+.action-panel {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+.move-forward-btn {
+    padding: 20px 60px;
+    background: linear-gradient(135deg, #8AB9B5 0%, #6a9a96 50%, #5a8a86 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Public Sans', sans-serif;
+    font-size: 1.4em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(138, 185, 181, 0.4),
+                0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Button gradient overlay effect */
+.move-forward-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    transition: left 0.5s ease;
+}
+
+.move-forward-btn:hover::before {
+    left: 100%;
+}
+
+/* Button hover effects */
+.move-forward-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 12px 35px rgba(138, 185, 181, 0.5),
+                0 6px 15px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #6a9a96 0%, #5a8a86 50%, #4a7a76 100%);
+}
+
+.move-forward-btn:active {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(138, 185, 181, 0.4),
+                0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.move-forward-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 4px 15px rgba(138, 185, 181, 0.3);
+}
+
+.move-forward-btn:disabled:hover {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(138, 185, 181, 0.3);
+}
+
+.btn-icon {
+    font-size: 1.3em;
+    font-weight: 700;
+    transition: transform 0.3s ease;
+}
+
+.move-forward-btn:hover .btn-icon {
+    transform: translateX(3px);
+}
+
+.btn-text {
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    .metrics-panel {
+        top: 10px;
+        left: 10px;
+        padding: 15px;
+        min-width: 240px;
+    }
+
+    .metric-label {
+        min-width: 90px;
+        font-size: 0.85em;
+    }
+
+    .metric-value {
+        min-width: 40px;
+        font-size: 0.8em;
+    }
+
+    .progress-panel {
+        top: 10px;
+        right: 10px;
+        padding: 15px;
+        min-width: 160px;
+    }
+
+    .progress-value {
+        font-size: 1.2em;
+    }
+
+    .move-forward-btn {
+        padding: 16px 45px;
+        font-size: 1.1em;
+    }
+
+    .btn-icon {
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .metrics-panel {
+        min-width: 200px;
+        padding: 12px;
+    }
+
+    .metric-bar {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .metric-label {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .metric-container {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .progress-panel {
+        min-width: 140px;
+        padding: 12px;
+    }
+
+    .move-forward-btn {
+        padding: 14px 35px;
+        font-size: 1em;
+        gap: 10px;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.metric-fill.animating {
+    animation: pulse 0.5s ease;
+}
+

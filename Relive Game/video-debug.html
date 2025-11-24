@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1280, initial-scale=1.0">
+    <title>Video Debug Test</title>
+</head>
+<body style="background:#181818;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <h2 style="color:#fff;margin-bottom:24px;">Video Debug Test</h2>
+    <video id="testVideo" src="orb-reference.webm" controls autoplay loop muted style="width:320px;height:240px;background:#222;border-radius:18px;"></video>
+    <div id="videoStatus" style="color:#fff;margin-top:24px;font-size:1.1rem;"></div>
+    <script>
+        const video = document.getElementById('testVideo');
+        const status = document.getElementById('videoStatus');
+        video.onerror = function() {
+            status.textContent = 'Error loading video. Check file path, format, or browser compatibility.';
+        };
+        video.oncanplay = function() {
+            status.textContent = 'Video loaded and can play.';
+        };
+        video.onloadeddata = function() {
+            status.textContent = 'Video data loaded.';
+        };
+        video.onstalled = function() {
+            status.textContent = 'Video loading stalled.';
+        };
+        video.onwaiting = function() {
+            status.textContent = 'Video is buffering.';
+        };
+    </script>
+</body>
+</html>

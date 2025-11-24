@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Re:Live - Orb Trajectory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #FAFAFA;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Full-page modal overlay styling */
+        #orbPopup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        #orbPopup.show {
+            display: flex;
+        }
+
+        main {
+            width: 1280px;
+            height: 832px;
+            position: relative;
+            display: flex;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(224, 84, 61, 0.1);
+            border: 1px solid rgba(224, 84, 61, 0.2);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Top Left - Title Section */
+        #titleSection {
+            position: absolute;
+            top: 24px;
+            left: 32px;
+            z-index: 10;
+        }
+
+        .title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #FAFAFA;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #BFBFBF;
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+
+        /* Top Right - Orb SVG */
+        #orbSection {
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            width: 160px;
+            height: 160px;
+            z-index: 10;
+        }
+
+        #orbSvg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 8px 24px rgba(224, 84, 61, 0.15));
+        }
+
+        /* Center - Canvas for Trajectory */
+        #canvasContainer {
+            position: absolute;
+            top: 220px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(224, 84, 61, 0.2);
+            border-radius: 12px;
+            z-index: 5;
+            backdrop-filter: blur(8px);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Bottom Left - Meters */
+        #metersSection {
+            position: absolute;
+            bottom: 32px;
+            left: 32px;
+            z-index: 10;
+            display: flex;
+            gap: 48px;
+        }
+
+        .meter {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .meter-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #BFBFBF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .meter-dial {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #E0543D 0deg, #E0543D var(--percentage), rgba(224, 84, 61, 0.2) var(--percentage), rgba(224, 84, 61, 0.2) 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(224, 84, 61, 0.15);
+        }
+
+        .meter-dial::before {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(40, 40, 40, 0.8), rgba(20, 20, 20, 0.95));
+            z-index: 1;
+        }
+
+        .meter-value {
+            position: relative;
+            z-index: 2;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #FAFAFA;
+        }
+
+        /* Back Button */
+        #backBtn {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #121212;
+            color: #FAFAFA;
+            border: none;
+            border-radius: 24px;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 25;
+            transition: all 0.2s ease;
+        }
+
+        #backBtn:hover {
+            background: #E0543D;
+            transform: translateX(-50%) scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="orbPopup">
+        <main>
+        <!-- Top Left - Title -->
+        <section id="titleSection">
+            <h1 class="title">Orb of Life</h1>
+            <p class="subtitle">Learn the consequences of the paths you choose.</p>
+        </section>
+
+        <!-- Top Right - Orb -->
+        <section id="orbSection">
+            <svg id="orbSvg" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <filter id="orbGlow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                <circle cx="80" cy="80" r="75" fill="none" stroke="#E0543D" stroke-width="2" opacity="0.3"/>
+                <circle cx="80" cy="80" r="60" fill="none" stroke="#E0543D" stroke-width="1" opacity="0.2"/>
+                
+                <g filter="url(#orbGlow)">
+                    <circle cx="80" cy="20" r="2.5" fill="#E0543D"/>
+                    <circle cx="133" cy="35" r="2.5" fill="#E0543D"/>
+                    <circle cx="145" cy="80" r="2.5" fill="#E0543D"/>
+                    <circle cx="133" cy="125" r="2.5" fill="#E0543D"/>
+                    <circle cx="80" cy="140" r="2.5" fill="#E0543D"/>
+                    <circle cx="27" cy="125" r="2.5" fill="#E0543D"/>
+                    <circle cx="15" cy="80" r="2.5" fill="#E0543D"/>
+                    <circle cx="27" cy="35" r="2.5" fill="#E0543D"/>
+                    <circle cx="105" cy="27" r="2.5" fill="#E0543D"/>
+                    <circle cx="133" cy="60" r="2.5" fill="#E0543D"/>
+                    <circle cx="133" cy="100" r="2.5" fill="#E0543D"/>
+                    <circle cx="105" cy="133" r="2.5" fill="#E0543D"/>
+                    <circle cx="55" cy="133" r="2.5" fill="#E0543D"/>
+                    <circle cx="27" cy="100" r="2.5" fill="#E0543D"/>
+                    <circle cx="27" cy="60" r="2.5" fill="#E0543D"/>
+                    <circle cx="55" cy="27" r="2.5" fill="#E0543D"/>
+                </g>
+            </svg>
+        </section>
+
+        <!-- Center - Canvas -->
+        <div id="canvasContainer">
+            <canvas id="trajectoryCanvas"></canvas>
+        </div>
+
+        <!-- Bottom Left - Meters -->
+        <section id="metersSection">
+            <div class="meter">
+                <div class="meter-label">Survival</div>
+                <div class="meter-dial" id="survivalMeter">
+                    <span class="meter-value" id="survivalValue">0%</span>
+                </div>
+            </div>
+            <div class="meter">
+                <div class="meter-label">Dignity</div>
+                <div class="meter-dial" id="dignityMeter">
+                    <span class="meter-value" id="dignityValue">0%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Close Button (X) - Top Right Corner -->
+        <button id="closeBtn" style="position: absolute; top: 24px; right: 24px; background: none; border: none; cursor: pointer; z-index: 100; padding: 8px;">
+            <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <line x1="8" y1="8" x2="24" y2="24" stroke="#FAFAFA" stroke-width="2" stroke-linecap="round"/>
+                <line x1="24" y1="8" x2="8" y2="24" stroke="#FAFAFA" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+        </main>
+    </div>
+
+    <script src="orbtrajectory.js"></script>
+</body>
+</html>
